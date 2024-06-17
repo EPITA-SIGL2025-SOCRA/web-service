@@ -61,7 +61,7 @@ More precisely, if a you want to query **tractors** around the position with `la
 
 ## Step 2: Deploy your web service
 
-**Objective**: have your web service deployed at [https://api.groupXX.socra-sigl.fr](https://api.groupXX.socra-sigl.fr) (groupXX replaced by your groupe number) and integrated to your CD pipeline
+**Objective**: have your web service deployed at [https://api.sotracteur.groupXX.socra-sigl.fr](https://api.sotracteur.groupXX.socra-sigl.fr) (groupXX replaced by your groupe number) and integrated to your CD pipeline
 
 ### Create a new github workflow file for your web service
 
@@ -103,7 +103,7 @@ jobs:
             docker stop sotracteur-web-service 2> /dev/null && docker rm sotracteur-web-service 2> /dev/null
             docker run -d --network web \
               --name sotracteur-web-service \
-              --label "traefik.http.routers.sotracteur-web-service.rule=Host(\`api.groupXX.socra-sigl.fr\`)" \
+              --label "traefik.http.routers.sotracteur-web-service.rule=Host(\`api.sotracteur.groupXX.socra-sigl.fr\`)" \
               --label "traefik.http.routers.sotracteur-web-service.tls=true" \
               --label "traefik.http.routers.sotracteur-web-service.tls.certresolver=letsencrypt" \
               --label "traefik.enable=true" \
@@ -115,22 +115,22 @@ It's very similar to your frontend build job, expect:
 
 - `working-directory` is `web-service`
 - `image-name` and `container-name` are `sotracteur-web-service`
-- `label` in traefik is `api.groupXX.socra-sigl.fr`
+- `label` in traefik is `api.sotracteur.groupXX.socra-sigl.fr`
 - `paths: [ "web-service/**" ]` is there to make sur that the web-service is deployed **only if some web-service files have changed**.
 
 You can also add a new `paths: ["frontend/**"]` in your other github workflow from previous workshop, to trigger frontend deployment **only when frontend file have changes**.
 
 Commit/push your changes, and you should trigger the web-service CD workflow.
 
-After few minutes, you should be able to access your web API on [https://api.groupXX.socra-sigl.fr](https://api.groupXX.socra-sigl.fr)
+After few minutes, you should be able to access your web API on [https://api.sotracteur.groupXX.socra-sigl.fr](https://api.sotracteur.groupXX.socra-sigl.fr)
 
 ## Step 3: Integrate web service to Sotracteur's frontend
 
 **Objective**: Your frontend fetch data served by your new web service.
 
-### Setup for different domain names (localhost vs api.groupXX.socra-sigl.fr)
+### Setup for different domain names (localhost vs api.sotracteur.groupXX.socra-sigl.fr)
 
-**Problem**: Frontend need to query `localhost:3000` when running on your local machine and `api.groupXX.socra-sigl.fr` when running on production.
+**Problem**: Frontend need to query `localhost:3000` when running on your local machine and `api.sotracteur.groupXX.socra-sigl.fr` when running on production.
 
 To solve this issue, you will create a new `public/api-info.json` file in your **frontend** code:
 
@@ -147,13 +147,13 @@ To solve this issue, you will create a new `public/api-info.json` file in your *
 - name: Set correct api domain in frontend image
 working-directory: frontend
 run: |
-    echo '{ "domain": "https://api.groupXX.socra-sigl.fr" }' > public/api-info.json
+    echo '{ "domain": "https://api.sotracteur.groupXX.socra-sigl.fr" }' > public/api-info.json
 ```
 
 This way, your app have the following config:
 
 - in dev mode (e.g. on `localhost:5173`): the `domain` value inside `frontend/public/api-info.json` will be `http://localhost:3000`
-- in production mode (e.g. on `https://groupXX.socra-sigl.fr`): the `domain` value inside `frontend/public/api-info.json` will be `https://api.groupXX.socra-sigl.fr`
+- in production mode (e.g. on `https://groupXX.socra-sigl.fr`): the `domain` value inside `frontend/public/api-info.json` will be `https://api.sotracteur.groupXX.socra-sigl.fr`
 
 ### Helper method to query your web-service
 
